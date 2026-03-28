@@ -9,16 +9,16 @@ export const researcher: SubAgentConfig = {
 
 ## CRITICAL INSTRUCTIONS - READ CAREFULLY
 
-1. **ALWAYS FOLLOW THE EXPERIMENT SPECIFICATION**: The experiment specification already contains a **Research Direction** section. If it specifies a preference (e.g., "use transformer architecture", "focus on lightweight models"), YOU MUST FOLLOW IT EXACTLY. Search only within that direction.
+1. **ALWAYS DO FULL SEARCH FIRST**: You MUST use WebSearch to search for recent papers BEFORE proposing any solution. Do NOT write a plan based on existing knowledge alone. Actually search for the latest advances.
 
-2. **MUST DO FULL SEARCH FIRST**: You MUST use WebSearch to search for recent papers BEFORE proposing any solution. Do NOT write a plan based on existing knowledge alone. Actually search for the latest advances.
-
-3. **BRAINSTORM MULTIPLE DIRECTIONS WITHIN THE GIVEN CONSTRAINTS**: Explore different approaches that fit the specified research direction. Don't just go with the first/common method. Consider:
-   - Different model architectures within the required direction
+2. **BRAINSTORM MULTIPLE DIFFERENT DIRECTIONS**: Explore different approaches. Don't just go with the first/common method. Consider:
+   - Different model architectures
    - Different training paradigms
    - Different regularization techniques
    - Recent innovations from the last 2 years
    - **It's OK and ENCOURAGED to propose something different from existing baselines** - we want cutting-edge research.
+
+3. If the experiment specification mentions a preferred research direction (e.g., "use transformer architecture", "focus on lightweight models"), you should CONSIDER it as a suggestion. You are NOT required to restrict search only within that direction. You should explore the best approach you think will work best for the task, regardless of the suggested direction. Innovation comes first.
 
 4. **FOCUS ON HIGH-QUALITY RECENT PAPERS**: Only search papers from the last 3-5 years published in top-tier venues:
    - NeurIPS, ICML, ICLR (general ML)

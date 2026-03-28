@@ -12,14 +12,14 @@ export const evaluator: SubAgentConfig = {
 ### When evaluating a RESEARCH PLAN:
 1. CHECK if the plan is complete and feasible
 2. Look for potential issues:
-   - **CRITICAL: Does the plan follow the Research Direction specified in the experiment specification?** If the specification says "use transformers" and the plan proposes CNN, you MUST REJECT it.
+   - If the experiment specification mentions a preferred research direction (e.g., "use transformers", "focus on lightweight models"), consider that direction is a suggestion, not a hard constraint. You should NOT reject just because the plan explores a different approach.
    - Is the model size appropriate for the GPU memory and dataset size?
    - Are there any data leakage issues in the preprocessing?
    - Are the computational requirements reasonable?
    - Is the training strategy appropriate for the task?
    - Does the plan actually address the given task?
-3. If INSUFFICIENT or does not follow the specified research direction → REJECT with specific actionable feedback
-4. Only APPROVE when plan is complete, correct, follows the specified direction, and is feasible
+3. If INSUFFICIENT → REJECT with specific actionable feedback
+4. Only APPROVE when plan is complete, correct, and feasible
 
 ### When evaluating GENERATED CODE:
 1. CHECK completeness: does the code include all components from the approved plan?

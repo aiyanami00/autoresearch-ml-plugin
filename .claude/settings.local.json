@@ -1,4 +1,11 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(node build/index.js)",
+      "Bash(ls -la /root/.claude/plugins/ /root/.claude/plugins/*/)",
+      "Bash(find /root/.claude -name *.json -type f)"
+    ]
+  },
   "enabledPlugins": {
     "slack@claude-plugins-official": true,
     "commit-commands@claude-plugins-official": true,

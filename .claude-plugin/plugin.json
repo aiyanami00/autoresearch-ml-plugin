@@ -1,0 +1,18 @@
+{
+  "name": "autoresearch",
+  "version": "1.0.0",
+  "description": "Autonomous multi-agent machine learning research. Given a task and dataset, automatically researches top papers, writes code, trains models, and iteratively improves.",
+  "author": {
+    "name": "AutoResearch",
+    "email": "autoresearch@example.com"
+  },
+  "license": "MIT",
+  "keywords": ["machine-learning", "research", "autonomous", "training", "data-science"],
+  "mcpServers": "./.mcp.json",
+  "commands": {
+    "autoresearch": "commands/autoresearch.md"
+  },
+  "skills": {
+    "autoresearch": "skills/autoresearch/SKILL.md"
+  }
+}

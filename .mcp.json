@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "autoresearch": {
+      "command": "node",
+      "args": [
+        "/workspace/autoresearch-plugin/build/index.js"
+      ],
+      "env": {
+        "ANTHROPIC_API_KEY": "$ANTHROPIC_API_KEY"
+      }
+    }
+  }
+}

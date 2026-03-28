@@ -18,10 +18,15 @@ import { agentConfigs } from './agents';
 export class AutoResearchSkill {
   private config: AutoResearchConfig;
   private tracker: ExperimentTracker;
+  private onMonitorCreated: ((monitor: TrainingMonitor) => void) | null = null;
 
   constructor(config: AutoResearchConfig) {
     this.config = config;
     this.tracker = new ExperimentTracker();
+  }
+
+  public setOnMonitorCreated(callback: (monitor: TrainingMonitor) => void): void {
+    this.onMonitorCreated = callback;
   }
 
   async run(queryFn: typeof query): Promise<string> {
@@ -413,6 +418,11 @@ Ensure all imports are correct and the code is runnable. Follow the extracted co
   private async runAndMonitorTraining(experiment: Experiment, codePath: string): Promise<ExperimentResult> {
     const trainScriptPath = path.join(experiment.baseDir, 'code', 'train.py');
     const monitor = new TrainingMonitor(experiment.baseDir);
+
+    // Notify server that monitor was created
+    if (this.onMonitorCreated) {
+      this.onMonitorCreated(monitor);
+    }
 
     const status = await monitor.startTraining(trainScriptPath, experiment.baseDir);
     console.log(`Training started, PID: ${status.pid}`);

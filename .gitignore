@@ -8,3 +8,4 @@ experiments/checkpoints/
 *.pyc
 __pycache__/
 .venv/
+experiments/

@@ -80,6 +80,8 @@ npm run build
 
 如果能正常启动，说明安装成功！
 
+> **💡 API 密钥说明**：`ANTHROPIC_API_KEY` 会自动从 Claude Code 环境获取，你不需要手动设置。插件已经配置好了。
+
 ---
 
 ### 手动配置 MCP（备选方案）
@@ -286,6 +288,8 @@ npm run build
 
 ## 实验目录结构
 
+所有实验都存储在 **你运行 `/autoresearch` 命令的当前工作目录**下的 `experiments/` 目录中（不是插件目录），这样实验数据和你的代码放在一起便于管理。
+
 每个实验存储在 `experiments/` 目录：
 
 ```
@@ -478,6 +482,8 @@ After restarting, run this in Claude Code:
 ```
 
 If it starts successfully, installation is complete!
+
+> **💡 API Key Note**: `ANTHROPIC_API_KEY` is automatically provided by the Claude Code environment, you don't need to manually configure it. The plugin is already pre-configured.
 
 ---
 
@@ -675,6 +681,8 @@ For each iteration:
 ```
 
 ## Experiment Structure
+
+All experiments are stored in the `experiments/` directory **in your current working directory where you run `/autoresearch`** (not in the plugin directory). This keeps your experiment data with your project code for easy management.
 
 Each experiment is stored in `experiments/`:
 

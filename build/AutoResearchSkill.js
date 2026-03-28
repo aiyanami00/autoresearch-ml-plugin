@@ -47,9 +47,13 @@ const agents_1 = require("./agents");
 class AutoResearchSkill {
     config;
     tracker;
+    onMonitorCreated = null;
     constructor(config) {
         this.config = config;
         this.tracker = new experimentTracker_1.ExperimentTracker();
+    }
+    setOnMonitorCreated(callback) {
+        this.onMonitorCreated = callback;
     }
     async run(queryFn) {
         console.log(`Starting AutoResearch: ${this.config.task}`);
@@ -383,6 +387,10 @@ Ensure all imports are correct and the code is runnable. Follow the extracted co
     async runAndMonitorTraining(experiment, codePath) {
         const trainScriptPath = path.join(experiment.baseDir, 'code', 'train.py');
         const monitor = new trainingMonitor_1.TrainingMonitor(experiment.baseDir);
+        // Notify server that monitor was created
+        if (this.onMonitorCreated) {
+            this.onMonitorCreated(monitor);
+        }
         const status = await monitor.startTraining(trainScriptPath, experiment.baseDir);
         console.log(`Training started, PID: ${status.pid}`);
         // Wait for completion with polling

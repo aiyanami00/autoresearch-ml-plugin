@@ -9,7 +9,7 @@ parameters:
     description: Local filesystem path to the dataset
     required: true
   - name: max_iterations
-    description: Maximum number of research+training iterations (default: 3)
+    description: "Maximum number of research+training iterations (default: 3)"
     type: number
     required: false
     default: 3

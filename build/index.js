@@ -113,6 +113,10 @@ class AutoResearchServer {
                         checkIntervalMs: (args.check_interval_seconds ?? 300) * 1000,
                     };
                     const skill = new AutoResearchSkill_1.AutoResearchSkill(config);
+                    // Pass callback to update server's monitor reference when monitor is created
+                    skill.setOnMonitorCreated((monitor) => {
+                        this.currentTrainingMonitor = monitor;
+                    });
                     // Create query wrapper that works with MCP
                     // Type assertion: we don't need the extra methods (interrupt, setPermissionMode, etc) for this use case
                     const queryFunc = async function* (params) {

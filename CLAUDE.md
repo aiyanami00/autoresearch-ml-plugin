@@ -34,6 +34,7 @@ src/
 ├── index.ts                 # MCP server entry point - defines 5 MCP tools
 ├── AutoResearchSkill.ts     # Main orchestrator - coordinates multi-agent workflow
 ├── agents/                  # Individual specialized agent prompts
+│   ├── index.ts             # Exports all agent configurations
 │   ├── understanding.ts     # Understanding agent: data exploration + existing code analysis
 │   ├── researcher.ts        # Researcher agent: literature search + GitHub code discovery
 │   ├── evaluator.ts         # Evaluator agent: reviews research plan for completeness/feasibility
@@ -52,7 +53,7 @@ src/
 
 | Tool | Description |
 |------|-------------|
-| `start_autoresearch` | Start a new autonomous research experiment |
+| `start_autoresearch` | Start a new autonomous research experiment. Parameters: `task` (required) - task description, `dataset_path` (required) - path to dataset, `max_iterations` (optional) - maximum research+training iterations, `experiment_name` (optional) - custom experiment name, `check_interval_seconds` (optional) - polling interval for training progress (default: 300) |
 | `get_training_status` | Get status of current training |
 | `stop_training` | Stop current running training |
 | `list_experiments` | List all previous experiments |

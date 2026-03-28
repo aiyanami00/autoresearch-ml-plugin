@@ -8,11 +8,5 @@
   },
   "license": "MIT",
   "keywords": ["machine-learning", "research", "autonomous", "training", "data-science"],
-  "mcpServers": "./.mcp.json",
-  "commands": {
-    "autoresearch": "commands/autoresearch.md"
-  },
-  "skills": {
-    "autoresearch": "skills/autoresearch/SKILL.md"
-  }
+  "mcpServers": "./.mcp.json"
 }

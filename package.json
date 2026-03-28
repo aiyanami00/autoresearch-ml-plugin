@@ -1,0 +1,23 @@
+{
+  "name": "autoresearch-mcp",
+  "version": "1.0.0",
+  "description": "Autonomous multi-agent machine learning research plugin for Claude Code",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.81",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@anthropic-ai/sdk": "^0.80.0",
+    "date-fns": "^2.30.0",
+    "simple-git": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

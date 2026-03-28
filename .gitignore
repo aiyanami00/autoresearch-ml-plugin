@@ -1,0 +1,11 @@
+node_modules/
+build/
+*.log
+experiments/**/*.pt
+experiments/**/*.pth
+experiments/**/*.ckpt
+experiments/checkpoints/
+.DS_Store
+*.pyc
+__pycache__/
+.venv/

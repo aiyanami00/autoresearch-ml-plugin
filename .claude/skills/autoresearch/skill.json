@@ -1,0 +1,27 @@
+{
+  "name": "AutoResearch",
+  "description": "Autonomous multi-agent machine learning research. Given a task and dataset, automatically researches top papers, writes code, trains models, and iteratively improves.",
+  "parameters": [
+    {
+      "name": "task",
+      "description": "Description of the machine learning task (e.g. 'Train an image classifier on my dataset of cat vs dog photos')",
+      "required": true
+    },
+    {
+      "name": "dataset_path",
+      "description": "Local filesystem path to the dataset",
+      "required": true
+    },
+    {
+      "name": "max_iterations",
+      "description": "Maximum number of research+training iterations",
+      "type": "number",
+      "default": 3
+    },
+    {
+      "name": "experiment_name",
+      "description": "Optional name for this experiment",
+      "required": false
+    }
+  ]
+}

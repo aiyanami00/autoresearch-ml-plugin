@@ -1,8 +1,8 @@
 // Trainer Agent definition
 // Monitors long-running training processes
-import { AgentConfig } from '../types';
+import { SubAgentConfig } from '../MultiAgentSkill';
 
-export const trainer: AgentConfig = {
+export const trainer: SubAgentConfig = {
   name: 'trainer',
   description: 'Training monitor that launches and monitors long-running PyTorch training',
   prompt: `You are a training specialist who launches training processes and monitors their progress.

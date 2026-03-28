@@ -69,11 +69,13 @@ export interface Experiment {
 }
 
 export interface AutoResearchConfig {
-  task: string;
-  datasetPath: string;
+  task?: string;
+  datasetPath?: string;
   maxIterations: number;
   experimentName: string;
   checkIntervalMs: number;
+  action?: 'start' | 'status' | 'stop' | 'list';
+  experimentId?: string;
 }
 
 export interface AgentConfig {

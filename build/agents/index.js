@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.recorder = exports.trainer = exports.coder = exports.evaluator = exports.researcher = exports.understanding = exports.agentConfigs = void 0;
+exports.recorder = exports.trainer = exports.coder = exports.evaluator = exports.researcher = exports.understanding = exports.allAgents = exports.agentConfigs = void 0;
 // Export all agent configurations
 const understanding_1 = __importDefault(require("./understanding"));
 exports.understanding = understanding_1.default;
@@ -25,3 +25,12 @@ exports.agentConfigs = {
     trainer: trainer_1.default,
     recorder: recorder_1.default,
 };
+// Export as array for MultiAgentSkill
+exports.allAgents = [
+    understanding_1.default,
+    researcher_1.default,
+    evaluator_1.default,
+    coder_1.default,
+    trainer_1.default,
+    recorder_1.default,
+];

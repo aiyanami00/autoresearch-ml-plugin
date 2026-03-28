@@ -7,6 +7,5 @@
     "email": "autoresearch@example.com"
   },
   "license": "MIT",
-  "keywords": ["machine-learning", "research", "autonomous", "training", "data-science"],
-  "mcpServers": "./.mcp.json"
+  "keywords": ["machine-learning", "research", "autonomous", "training", "data-science"]
 }

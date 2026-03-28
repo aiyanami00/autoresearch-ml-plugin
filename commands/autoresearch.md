@@ -39,4 +39,6 @@ Starting AutoResearch with the following parameters:
 - **Experiment Name**: {{experiment_name}}
 {{/if}}
 
-Call the `start_autoresearch` MCP tool from the `autoresearch` MCP server with these parameters to begin the autonomous research process.
+Invoke the autoresearch skill directly with these parameters to begin the autonomous research process:
+
+<skill name="autoresearch" task="{{task}}" dataset_path="{{dataset_path}}" max_iterations="{{#if max_iterations}}{{max_iterations}}{{else}}3{{/if}}" {{#if experiment_name}}experiment_name="{{experiment_name}}"{{/if}} />

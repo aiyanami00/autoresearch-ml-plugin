@@ -1,8 +1,8 @@
 // Recorder Agent definition
 // Records experiment results and analyzes for improvements
-import { AgentConfig } from '../types';
+import { SubAgentConfig } from '../MultiAgentSkill';
 
-export const recorder: AgentConfig = {
+export const recorder: SubAgentConfig = {
   name: 'recorder',
   description: 'Experiment recorder that logs results and suggests improvements',
   prompt: `You are an experiment analyst who records results and analyzes what can be improved for the next iteration.

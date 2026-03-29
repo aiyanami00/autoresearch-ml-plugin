@@ -1,7 +1,7 @@
 {
   "name": "autoresearch",
   "version": "1.0.0",
-  "description": "Autonomous multi-agent machine learning research plugin for Claude Code",
+  "description": "Autonomous multi-agent machine learning research plugin for Claude Code. Given a task and dataset, automatically researches top papers, writes PyTorch code, trains models, and iteratively improves results.",
   "main": "build/index.js",
   "bin": {
     "autoresearch": "build/scripts/init-experiments.js"
@@ -11,6 +11,32 @@
     "dev": "ts-node src/index.ts",
     "start": "node build/index.js",
     "init": "node build/scripts/init-experiments.js"
+  },
+  "files": [
+    "build/",
+    "commands/",
+    "skills/",
+    ".claude-plugin/"
+  ],
+  "keywords": [
+    "claude-code",
+    "claude",
+    "anthropic",
+    "autoresearch",
+    "machine-learning",
+    "deep-learning",
+    "ai",
+    "autonomous",
+    "research",
+    "training",
+    "multi-agent",
+    "pytorch"
+  ],
+  "author": "AutoResearch",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/autoresearch-ml-plugin.git"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.81",
@@ -22,5 +48,8 @@
     "@types/node": "^25.5.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

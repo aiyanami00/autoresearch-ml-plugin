@@ -9,3 +9,7 @@ experiments/checkpoints/
 __pycache__/
 .venv/
 experiments/
+skills/**/*.js
+skills/**/*.js.map
+!skills/**/*.jsx
+!skills/**/*.tsx

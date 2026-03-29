@@ -7,7 +7,7 @@
     "autoresearch": "build/src/scripts/init-experiments.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/postbuild.js",
     "dev": "ts-node src/index.ts",
     "start": "node build/index.js",
     "init": "node build/scripts/init-experiments.js"

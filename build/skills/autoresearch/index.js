@@ -4,7 +4,7 @@
 // This is required for Claude Code to find and invoke the skill
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = autoresearchSkill;
-const index_1 = require("../../src/index");
+const index_1 = require("../src/index");
 // Module-level cache for singleton pattern
 // Reuse instance when working in the same working directory (most common case)
 let cachedInstance = null;

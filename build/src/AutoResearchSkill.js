@@ -180,14 +180,29 @@ The experiment board at \`${boardPath}\` tracks research directions and results.
 You MUST follow this exact workflow sequence:
 
 ### Phase 1: Understanding
-1. Call the "understanding" agent using the Task tool with context about the task, dataset, and experiment directory
+
+**CRITICAL: YOU MUST USE TASK TOOL FOR UNDERSTANDING AND EVALUATION**
+
+1. **MUST call Task tool**: agent="understanding" with context about the task, dataset, and experiment directory
 2. The understanding agent will:
    - Explore the dataset structure by writing Python scripts
    - Check GPU hardware with nvidia-smi
    - Analyze existing code patterns
    - Write specification.md
-3. After understanding completes, present the specification to the user and get their confirmation before proceeding
-4. If the user wants changes, call understanding agent again with feedback
+   - Ask user to confirm optimization objective and evaluation metrics
+3. **MUST call Task tool**: agent="evaluator" with phase="spec_review"
+   - The evaluator reviews specification.md for completeness
+   - Checks for mandatory sections: Optimization Objective, Evaluation Metrics, Hardware Information, etc.
+4. If evaluator REJECTS:
+   - Read the feedback from evaluator's output
+   - Go back to step 1 with the feedback for understanding agent to revise
+   - Repeat until specification is APPROVED
+5. If evaluator APPROVES:
+   - Present the specification to the user
+   - Get explicit confirmation before proceeding to Phase 2
+6. If user wants changes:
+   - Go back to step 1 with user's feedback
+   - Repeat the understanding → evaluator loop until user is satisfied
 
 ### Phase 2: Iterative Research Loop (repeat for ${maxIterations} iterations)
 
@@ -298,11 +313,14 @@ Structure:
 
 Start the workflow now by following these steps in order:
 1. Call understanding agent (Task tool) for Phase 1
-2. After user confirmation, begin Phase 2 iterative loop
-3. For iteration 1 to ${maxIterations}:
+2. Call evaluator (Task tool) to review specification
+3. If rejected, loop back to step 1 with feedback
+4. If approved, present to user and get confirmation
+5. After user confirmation, begin Phase 2 iterative loop
+6. For iteration 1 to ${maxIterations}:
    - Call researcher → evaluator → coder → evaluator → trainer → recorder
    - Each step MUST use Task tool
-4. After all iterations, generate final summary`;
+7. After all iterations, generate final summary`;
     }
     /**
      * Main entry point - runs the orchestration

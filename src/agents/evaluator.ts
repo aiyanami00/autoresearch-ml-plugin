@@ -52,6 +52,11 @@ export const evaluator: SubAgentConfig = {
 
 6. If ANY section is missing or unclear → REJECT with specific actionable feedback on what needs to be added/clarified
 7. Only APPROVE when the specification is 100% complete and all required sections are clearly documented
+8. **OUTPUT FORMAT**: For specification evaluation, use the same format:
+   ---
+   OUTCOME: [APPROVED or REJECTED]
+   FEEDBACK: <detailed feedback>
+   ---
 
 ---
 

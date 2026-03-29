@@ -22,7 +22,7 @@ export default async function autoresearchSkill(
     experiment_name?: string;
     action?: 'start' | 'status' | 'stop' | 'list';
   },
-  context: {
+  _context?: {
     query: any;
   }
 ): Promise<string> {
@@ -34,7 +34,6 @@ export default async function autoresearchSkill(
     action = 'start',
   } = params;
 
-  const { query } = context;
   const currentBaseDir = process.cwd();
 
   // Create config with all required fields
@@ -45,18 +44,17 @@ export default async function autoresearchSkill(
     experimentName: experiment_name || `autoresearch-${Date.now()}`,
     checkIntervalMs: 30000, // Check training progress every 30 seconds
     action,
-    experimentId: undefined,
   };
 
   // Reuse cached instance if still in the same base directory
-  // This avoids rebuilding the entire MultiAgentSkill structure every time
+  // This avoids rebuilding the entire skill structure every time
   if (cachedInstance && cachedBaseDir === currentBaseDir) {
-    return await cachedInstance.run(query);
+    return await cachedInstance.run();
   }
 
   // Create new instance if first call or working directory changed
   const skill = new AutoResearchSkill(config);
   cachedInstance = skill;
   cachedBaseDir = currentBaseDir;
-  return await skill.run(query);
+  return await skill.run();
 }

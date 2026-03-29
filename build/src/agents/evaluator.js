@@ -18,25 +18,39 @@ exports.evaluator = {
    - [ ] Dataset: Does it document discovered structure (splits, file types, sizes)?
    - [ ] Input/Output format: Are shapes and types clearly stated?
    - [ ] Hardware Information: Is GPU model and available memory (in GB) recorded?
-   - [ ] Training Objective & Evaluation:
-         * Is the metric to optimize explicitly stated?
-         * Is it clear whether to maximize or minimize the metric?
-         * Is evaluation procedure (split strategy, when metric is computed) defined?
+   - [ ] **Optimization Objective (CRITICAL)**:
+         * Is the primary metric to optimize explicitly stated? (e.g., "validation accuracy", "F1 score")
+         * Is it clear whether to maximize or minimize? (e.g., "Maximize - higher is better")
+         * Is the rationale provided?
+   - [ ] **Evaluation Metrics to Report (CRITICAL)**:
+         * Are all metrics to compute during evaluation listed?
+         * Are train/val/test splits specified for each metric?
+         * Is it clear when each metric is computed (every epoch vs final test)?
    - [ ] Coding Requirements: Are framework version, logging requirements, and constraints clearly stated?
    - [ ] Research Direction: Is this explicitly recorded from user request?
    - [ ] Extracted Patterns: If existing code was analyzed, are the patterns included?
 
-2. CHECK for ambiguities:
+2. **MANDATORY CHECK - Optimization Objective**:
+   - The specification MUST have a dedicated "## Optimization Objective" section
+   - It MUST specify: (1) exact metric name, (2) maximize or minimize, (3) brief rationale
+   - Example of GOOD: "Metric: Validation Accuracy, Direction: Maximize, Rationale: Balanced classification"
+   - Example of BAD: "We'll optimize for good performance" (too vague)
+
+3. **MANDATORY CHECK - Evaluation Metrics**:
+   - The specification MUST have a dedicated "## Evaluation Metrics" section
+   - It MUST list what metrics are computed during: Training, Validation, and Test phases
+   - It should specify the complete set of metrics for comprehensive evaluation
+
+4. CHECK for ambiguities:
    - Is EVERYTHING clearly defined?
    - Is there any missing information that subsequent agents (researcher/coder) would need?
-   - Is the evaluation metric 100% clear (what metric, maximize/minimize)?
 
-3. CHECK hardware constraint:
+5. CHECK hardware constraint:
    - Is GPU detection actually done? If no GPU available, is that documented?
    - Is memory constraint clear for later model design?
 
-4. If ANY section is missing or unclear → REJECT with specific actionable feedback on what needs to be added/clarified
-5. Only APPROVE when the specification is 100% complete and all required sections are clearly documented
+6. If ANY section is missing or unclear → REJECT with specific actionable feedback on what needs to be added/clarified
+7. Only APPROVE when the specification is 100% complete and all required sections are clearly documented
 
 ---
 

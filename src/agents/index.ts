@@ -5,7 +5,7 @@ import evaluator from './evaluator';
 import coder from './coder';
 import trainer from './trainer';
 import recorder from './recorder';
-import type { SubAgentConfig } from '../MultiAgentSkill';
+import type { SubAgentConfig } from '../types';
 
 export const agentConfigs = {
   understanding,
@@ -16,7 +16,7 @@ export const agentConfigs = {
   recorder,
 };
 
-// Export as array for MultiAgentSkill
+// Export as array
 export const allAgents: SubAgentConfig[] = [
   understanding,
   researcher,

@@ -1,171 +1,107 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+AutoResearch - 使用显式状态机控制的多智能体机器学习研究插件。
 
-## Overview
-
-This is **AutoResearch** - an autonomous multi-agent machine learning research plugin for Claude Code. The plugin enables fully autonomous end-to-end machine learning research: given a task description and dataset, it automatically explores data, analyzes existing code, searches literature, writes code, trains models, and iteratively improves results.
-
-## Common Commands
+## 常用命令
 
 ```bash
-# Install dependencies
-npm install
-
-# Build TypeScript to JavaScript (output to build/)
-npm run build
-
-# Development mode (run with ts-node without building)
-npm run dev
-
-# Run the initialization script to create experiments directory structure
-npm run init
-# Or via npx after installation:
-npx autoresearch init
+npm install      # 安装依赖
+npm run build    # 编译 TypeScript
+npm run dev      # 开发模式
 ```
 
-## Code Architecture
-
-### High-Level Structure
+## 代码架构
 
 ```
 src/
-├── index.ts                 # Main entry point - exports all public APIs
-├── AutoResearchSkill.ts     # Main orchestrator - uses MultiAgentSkill framework
-├── MultiAgentSkill.ts       # Generic multi-agent framework (based on reference implementation)
-├── agents/                  # Individual specialized subagent configurations
-│   ├── index.ts             # Exports all agents as array for MultiAgentSkill
-│   ├── understanding.ts     # Understanding agent: data exploration + existing code analysis + hardware detection
-│   ├── researcher.ts        # Researcher agent: literature search + GitHub code discovery (must search first, brainstorm multiple directions)
-│   ├── evaluator.ts         # **Unified Evaluator**: reviews both research plans AND generated code for completeness/feasibility
-│   ├── coder.ts             # Coder agent: generates PyTorch training code following extracted patterns
-│   ├── trainer.ts           # Trainer agent: launches and monitors long-running training
-│   └── recorder.ts          # Recorder agent: analyzes results and suggests improvements
-├── types/
-│   └── index.ts             # TypeScript type definitions for all core data structures
+├── AutoResearchSkill.ts    # 主协调器，显式状态机控制工作流
+├── MultiAgentSkill.ts      # 提供 runSubagent() 用于显式调用
+├── agents/                 # 子 agent 配置
+│   ├── understanding.ts   # 数据探索、GPU检测、写 specification
+│   ├── researcher.ts      # 文献搜索、brainstorm、写 plan
+│   ├── evaluator.ts       # 统一评审（方案+代码+最终分析）
+│   ├── coder.ts           # 生成 PyTorch 代码
+│   ├── trainer.ts         # 启动和监控训练
+│   └── recorder.ts        # 记录结果、写 summary
 ├── utils/
-│   ├── experimentTracker.ts # Tracks experiments, maintains experiment log, creates directories
-│   ├── trainingMonitor.ts   # Monitors background training process, parses logs, detects completion/failure
-│   └── gitHelper.ts         # Git operations for auto-committing experiments
-├── scripts/
-│   └── init-experiments.ts  # CLI initialization script to create experiments directory
-├── commands/
-│   └── autoresearch.md      # Slash command definition for /autoresearch
-└── skills/autoresearch/
-    └── SKILL.md             # Skill definition for direct skill invocation
+│   ├── experimentTracker.ts
+│   ├── trainingMonitor.ts
+│   └── gitHelper.ts
+└── skills/autoresearch/SKILL.md
 ```
 
-### Multi-Agent Architecture
+## 显式状态机工作流
 
-This plugin uses the `MultiAgentSkill` framework where:
-- **Main orchestrator**: `AutoResearchSkill` creates `MultiAgentSkill` with the full workflow prompt and the list of specialized subagents
-- **Specialized subagents**: Each agent has a single responsibility, its own prompt and allowed tools
-- **Framework handles scheduling**: The main agent follows the workflow prompt and calls subagents as needed
-- **Fixed strict order**: Process must follow this sequence:
-
-```
-1. understanding
-   ↓
-   (get user confirmation)
-   ↓
-2. For each iteration:
-   ↓
-   researcher → evaluator (loop until approved)
-   ↓
-   coder → evaluator (loop until approved) ✨ code review by unified evaluator
-   ↓
-   trainer (train and monitor until completion/failure)
-   ↓
-   recorder (analyze results, suggest improvements)
-   ↓
-3. Final summary
+```typescript
+runStateMachine()
+    ↓
+runUnderstandingPhase()     // understanding → evaluator (循环直到通过)
+    ↓
+for i in 1..maxIterations:
+    runResearchPhase()      // researcher → evaluator (循环)
+    runCodePhase()          // coder → evaluator (循环)
+    runTrainingPhase()      // trainer (监控到完成)
+    runAnalysisPhase()      // recorder (写 summary)
+    ↓
+generateFinalSummary()
 ```
 
-### Fixed Workflow Steps Explained
+**关键点**: 不使用 Agent SDK 自动调度，由代码显式控制每个 agent 的调用顺序。
 
-| Step | Agent | Purpose |
-|------|-------|---------|
-| **understanding** | understanding | 1. Automatic data exploration with Glob recursion; 2. Analyze existing code to extract coding style/data processing patterns; 3. **Auto-detect GPU model and memory** with `nvidia-smi`; 4. Clarify training objective (what metric to optimize); 5. Write `specification.md`; 6. **Get user review/confirmation** before proceeding |
-| **research** | researcher | 1. **MUST search web first** for recent top-conference papers; 2. **Brainstorm multiple directions**, encourage innovative approaches; 3. Find official GitHub repository; 4. Clone and inspect reference code; 5. Propose complete plan |
-| **evaluate (plan)** | evaluator | **Unified evaluator** reviews both plans and code. For plans: 1. Critically review plan for completeness/feasibility; 2. Check model size against available GPU memory; 3. Reject incomplete plans with specific feedback; 4. Only approve when plan is ready |
-| **code** | coder | Write complete PyTorch training code (`train.py` + `model.py`) following specification and extracted patterns |
-| **evaluate (code)** | evaluator | Same unified evaluator reviews code: 1. Check code completeness; 2. Verify matches approved plan; 3. Check coding requirements and logging format; 4. Reject if issues found for coder to fix |
-| **train** | trainer | Launch training as detached background process; periodically poll log to monitor progress; detect completion/failure |
-| **record** | recorder | Save all details; write analysis summary; provide concrete improvement suggestions for next iteration; auto-commit to git |
+## 上下文传递
 
-### Experiment Storage Structure
+每个 agent 接收包含 skill 元数据的 context：
 
-Experiments are stored in the **user's current working directory** (where `/autoresearch` is invoked) under `./experiments/`:
+```typescript
+{
+    task: "...",
+    datasetPath: "...",
+    skill: {
+        skillName: "AutoResearch",
+        skillPurpose: "自主多智能体机器学习研究",
+        skillWorkflow: "understanding → evaluator → researcher → ...",
+        currentStep: "understanding - 探索数据...",
+        maxIterations: 3
+    }
+}
+```
+
+## Agent 职责
+
+| Agent | 关键任务 | Tools |
+|-------|---------|-------|
+| understanding | 写 analyze_data.py 探索数据、check_hardware.py 检测GPU、提取代码规范 | AskUserQuestion, Read, Write, Glob, Bash |
+| researcher | WebSearch 论文、brainstorm 多方向、克隆 GitHub 代码 | WebSearch, WebFetch, Bash |
+| evaluator | 评审 spec/plan/code，最终 retrospective 分析 | Read, Write |
+| coder | 按 plan 生成 train.py + model.py，遵循现有代码风格 | Write, Read, Edit |
+| trainer | 后台启动训练，轮询日志监控 | Bash, Read |
+| recorder | 更新 CSV、写 summary、调用 evaluator 最终评审 | Read, Write, Bash, Agent |
+
+## 评审反馈循环
+
+```typescript
+while (!approved && attempts < maxAttempts) {
+    const result = await runSubagent('agent', context, queryFn);
+    const evalResult = await runSubagent('evaluator', { phase: 'review', ... }, queryFn);
+    const outcome = parseOutcome(evalResult);  // APPROVED/REJECTED
+
+    if (!outcome.approved) {
+        context.feedback = outcome.feedback;   // 反馈给下一轮
+        context.previousResult = result;
+    }
+}
+```
+
+## 实验目录结构
 
 ```
 experiments/
-├── experiment_log.jsonl               # Global experiment index
-├── result.csv                         # Global results summary
-├── specification.md                   # Overall experiment specification (data, GPU, objective) ← shared by all iterations
-└── experiment01/                      # Iteration 1 (sequential numbering: 01, 02, 03...)
-    ├── config.json                     # Full experiment configuration
-    ├── plan/
-    │   └── plan.md                     # Approved plan for this iteration
-    ├── src/                            # Training code
-    │   ├── train.py
-    │   └── model.py
-    ├── log/                            # Training logs
-    │   └── training.log
-    ├── output/                         # Output results, metrics, checkpoints
-    │   ├── metrics.json
-    │   └── learning_curves.csv
-    ├── references/                     # Cloned reference code from GitHub
-    ├── checkpoints/                    # git-ignored
-    └── summary.md                      # Final analysis and suggestions for this iteration
+├── specification.md       # 整体实验规范
+├── result.csv            # 全局结果汇总
+└── experiment01/
+    ├── plan/plan.md
+    ├── src/{train,model}.py
+    ├── log/training.log
+    ├── output/metrics.json
+    └── summary.md
 ```
-
-**Structure notes**:
-- `specification.md` contains overall experiment information (data description, GPU info, training objective) that doesn't change between iterations - so it's stored once in the root directory
-- Each iteration gets its own `experimentXX` directory with sequential numbering (`experiment01`, `experiment02`, ...)
-- Each iteration stores its own plan, code, logs, and results independently
-
-### Key Dependencies
-
-- `@anthropic-ai/claude-agent-sdk` - Claude Agent SDK for multi-agent orchestration
-- `@anthropic-ai/sdk` - Anthropic API client
-- `simple-git` - Git operations for auto-committing experiments
-- `date-fns` - Date formatting
-
-### Plugin Configuration
-
-- `.claude-plugin/plugin.json` - Plugin manifest (no MCP configured, direct skill-based)
-- `commands/autoresearch.md` - Slash command definition
-- `skills/autoresearch/SKILL.md` - Skill definition
-
-## Usage in Claude Code
-
-After installing the plugin, start an experiment with:
-
-```
-/autoresearch task="your machine learning task" dataset_path="./path/to/dataset" [max_iterations=3]
-```
-
-Example:
-
-```
-/autoresearch task="Train an image classification model" dataset_path="./data/my-images" max_iterations=3
-```
-
-## Key Features
-
-- **Automatic GPU detection**: Understanding agent runs `nvidia-smi` to get GPU model and memory, which informs model design
-- **Mandatory search-first**: Researcher must search web for recent papers before proposing solution, encourages brainstorming multiple approaches
-- **Double review**: Plan review by evaluator + code review by evaluator before training, catches issues early
-- **Long-running training support**: Training runs in detached background process, supports hours/days of training
-- **User confirmation**: Understanding agent gets user review/modification approval before research starts
-- **Extract coding conventions**: Learns your coding style/data processing from existing code, generates new code that matches
-- **Iterative improvement**: Each iteration incorporates feedback from previous results
-
-## Entry Flow
-
-1. User runs `/autoresearch` with parameters
-2. Claude Code directly invokes the autoresearch skill
-3. `AutoResearchSkill` creates `MultiAgentSkill` with workflow prompt and subagents array
-4. `MultiAgentSkill` runs via Claude Agent SDK, main agent follows the fixed workflow calling subagents
-5. Final summary returned to conversation
-</think_never_used_51bce0c785ca2f68081bfa7d91973934>

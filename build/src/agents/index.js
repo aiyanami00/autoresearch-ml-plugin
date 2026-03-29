@@ -25,7 +25,7 @@ exports.agentConfigs = {
     trainer: trainer_1.default,
     recorder: recorder_1.default,
 };
-// Export as array for MultiAgentSkill
+// Export as array
 exports.allAgents = [
     understanding_1.default,
     researcher_1.default,

@@ -1,6 +1,6 @@
 // Trainer Agent definition
 // Monitors long-running training processes
-import { SubAgentConfig } from '../MultiAgentSkill';
+import type { SubAgentConfig } from '../types';
 
 export const trainer: SubAgentConfig = {
   name: 'trainer',

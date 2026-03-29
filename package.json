@@ -2,9 +2,9 @@
   "name": "autoresearch",
   "version": "1.0.0",
   "description": "Autonomous multi-agent machine learning research plugin for Claude Code. Given a task and dataset, automatically researches top papers, writes PyTorch code, trains models, and iteratively improves results.",
-  "main": "build/index.js",
+  "main": "build/src/index.js",
   "bin": {
-    "autoresearch": "build/scripts/init-experiments.js"
+    "autoresearch": "build/src/scripts/init-experiments.js"
   },
   "scripts": {
     "build": "tsc",
@@ -14,7 +14,6 @@
   },
   "files": [
     "build/",
-    "commands/",
     "skills/",
     ".claude-plugin/"
   ],

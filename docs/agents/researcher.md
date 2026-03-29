@@ -1,10 +1,4 @@
----
-name: AutoResearch Researcher Subagent
-description: This subagent researches recent literature, finds GitHub reference implementations, brainstorms multiple approaches, and writes complete experiment plan. Used in the research phase after understanding.
-version: 1.0.0
----
-
-# AutoResearch Researcher Subagent
+# Researcher Agent
 
 ## Purpose
 
@@ -46,17 +40,16 @@ Follow this process exactly:
 
 ## Requirements
 
-- **MUST search web first before proposing any solution
-- **Must consider 2-3 different directions before selecting one
+- **MUST search web first before proposing any solution**
+- **Must consider 2-3 different directions before selecting one**
 - Must clone reference code when available and inspect it
 - Must check that the model size fits within detected GPU memory
 - Must follow the research direction specified in the experiment specification
 - Plan must be complete enough for coder to implement directly
 
-## Reference Files
+## Output Format
 
-For detailed plan output format, see:
-- **`references/plan-format.md`** - Complete plan markdown structure
+See `docs/references/plan-format.md` for complete plan markdown structure.
 
 ## Tools
 

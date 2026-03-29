@@ -1,6 +1,6 @@
 ---
 name: AutoResearch
-description: Autonomous multi-agent machine learning research plugin. Automatically explores data, searches for recent research papers, writes PyTorch training code, trains models, and iteratively improves results. Uses specialized subagents: understanding (data exploration), researcher (literature search), evaluator (plan/code review), coder (code generation), trainer (training monitoring), recorder (results analysis). Triggers: /autoresearch, /autoresearch-status, /autoresearch-stop, /autoresearch-list, autoresearch, autonomous ML research, automatic machine learning experiment, run ML experiment, train model automatically.
+description: This skill should be used when the user asks to "run autoresearch", "start ML experiment", "automatic machine learning", "train model automatically", "autoresearch status", "stop autoresearch", "list experiments", or mentions autonomous ML research, automatic training, or multi-agent machine learning experimentation.
 skill_type: slash_command
 parameters:
   - name: task
@@ -10,7 +10,7 @@ parameters:
     description: Local filesystem path to the dataset (required for starting new experiment)
     required: false
   - name: action
-    description: Action to perform: start (start new experiment), status (get current training status), stop (stop current training), list (list all experiments), summary (summarize all completed experiments)
+    description: Action to perform - start (start new experiment), status (get current training status), stop (stop current training), list (list all experiments), summary (summarize all completed experiments)
     type: string
     enum: ["start", "status", "stop", "list", "summary"]
     default: "start"
@@ -23,57 +23,109 @@ parameters:
   - name: experiment_name
     description: Optional name for this experiment
     required: false
-  - name: experiment_id
-    description: Experiment ID for get-summary action
-    required: false
 ---
 
 # AutoResearch - Autonomous Machine Learning Research
 
-AutoResearch enables fully autonomous machine learning experimentation:
+Enable fully autonomous machine learning experimentation through multi-agent collaboration.
 
-1. **Research**: Analyzes your task and dataset, searches for recent research papers and best architectures
-2. **Code Generation**: Writes complete training code based on current research findings
-3. **Training**: Runs the training process and monitors performance
-4. **Evaluation**: Evaluates results and identifies areas for improvement
-5. **Iteration**: Repeats the process to incrementally improve models
+## Overview
 
-## Available Commands
+This skill orchestrates a workflow that:
 
-- `/autoresearch task="..." dataset_path="..."` - Start a new autonomous experiment
-- `/autoresearch-status` - Get status of current running training
-- `/autoresearch-stop` - Stop current running training
-- `/autoresearch-list` - List all previous experiments
+1. **Analyze**: Parse task requirements, explore dataset structure, detect hardware capabilities
+2. **Research**: Search recent papers and discover best architectures
+3. **Generate**: Write complete PyTorch training code
+4. **Train**: Run and monitor the training process
+5. **Iterate**: Evaluate results and improve incrementally
 
-Starting AutoResearch with the following parameters:
+## Agent Architecture
 
-{{#if action '==' 'start'}}
-- **Task**: {{task}}
-- **Dataset Path**: {{dataset_path}}
-- **Max Iterations**: {{max_iterations}}
-{{#if experiment_name}}
-- **Experiment Name**: {{experiment_name}}
-{{/if}}
-{{/if}}
+Six specialized agents collaborate in sequence:
 
-{{#if action '==' 'status'}}
-- **Action**: Get current training status
-{{/if}}
+- **understanding**: Explore data, analyze existing code, write experiment specification
+- **researcher**: Search literature, find reference implementations, propose methods
+- **evaluator**: Review plans and code for completeness and feasibility
+- **coder**: Generate training code following extracted patterns
+- **trainer**: Launch and monitor long-running training
+- **recorder**: Analyze results and suggest improvements
 
-{{#if action '==' 'stop'}}
-- **Action**: Stop current training
-{{/if}}
+## Workflow
 
-{{#if action '==' 'list'}}
-- **Action**: List all experiments
-{{/if}}
+```
+understanding → evaluator (loop until approved)
+     ↓
+For each iteration:
+  researcher → evaluator (loop until approved)
+       ↓
+  coder → evaluator (loop until approved)
+       ↓
+  trainer (monitor until completion)
+       ↓
+  recorder (analyze and suggest improvements)
+```
 
-This skill directly executes the autonomous multi-agent machine learning research workflow. When invoked, it:
+## Usage
 
-1. Runs the Understanding agent to explore the dataset and analyze existing code
-2. Iteratively researches (finds recent papers, reference code), evaluates, and refines the plan
-3. Generates complete PyTorch training code
-4. Launches training and monitors progress
-5. Records results and suggests improvements for the next iteration
+### Start New Experiment
 
-All experiments are stored in the `./experiments/` directory.
+```
+/autoresearch task="Train an image classifier" dataset_path="./data/images" max_iterations=3
+```
+
+### Check Training Status
+
+```
+/autoresearch-status
+```
+
+### Stop Running Training
+
+```
+/autoresearch-stop
+```
+
+### List All Experiments
+
+```
+/autoresearch-list
+```
+
+## Experiment Storage
+
+All experiments stored in `./experiments/`:
+
+```
+experiments/
+├── specification.md          # Shared experiment specification
+├── experiment01/
+│   ├── plan/plan.md         # Research plan
+│   ├── src/train.py         # Training code
+│   ├── src/model.py         # Model definition
+│   ├── log/training.log     # Training logs
+│   ├── output/              # Results and checkpoints
+│   └── summary.md           # Analysis and suggestions
+├── experiment02/
+└── ...
+```
+
+## Key Features
+
+- **Automatic GPU detection**: Detect hardware constraints before model design
+- **Search-first research**: Require literature search before proposing solutions
+- **Double evaluation**: Review both plans and code before training
+- **Long-running support**: Training runs in background, supports hours/days
+- **Extracted patterns**: Learn coding style from existing code, match conventions
+- **Iterative improvement**: Each round builds on previous results
+
+## When Invoked
+
+Execute the autonomous workflow directly:
+
+1. Run understanding agent to analyze task and data
+2. Loop through research → evaluation → coding → evaluation
+3. Launch training and monitor progress
+4. Record results and generate improvement suggestions
+5. Repeat for specified iterations
+
+Return final summary with best results across all iterations.

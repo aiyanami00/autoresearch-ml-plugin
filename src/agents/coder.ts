@@ -1,6 +1,6 @@
 // Coder Agent definition
 // Implements the approved plan in PyTorch Python
-import { SubAgentConfig } from '../MultiAgentSkill';
+import type { SubAgentConfig } from '../types';
 
 export const coder: SubAgentConfig = {
   name: 'coder',

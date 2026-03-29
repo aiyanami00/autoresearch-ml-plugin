@@ -1,6 +1,6 @@
 // Recorder Agent definition
 // Records experiment results and analyzes for improvements
-import { SubAgentConfig } from '../MultiAgentSkill';
+import type { SubAgentConfig } from '../types';
 
 export const recorder: SubAgentConfig = {
   name: 'recorder',
@@ -31,7 +31,43 @@ Your responsibilities:
 4. **CALL EVALUATOR FOR FINAL REVIEW**: After you write the initial summary, you MUST call the **evaluator** agent to review and refine the experimental report. The evaluator will do a deeper retrospective analysis.
 
 5. Save everything to the experiment directory (summary.md at the root of experiment directory)
+
 6. If auto-commit is enabled, commit the experiment to git
+
+7. **OUTPUT JSON RESULT**: At the end of your response, output a JSON block with the experiment data for board update:
+
+\`\`\`json
+{
+  "experimentEntry": {
+    "id": "experimentXX",
+    "iteration": 1,
+    "timestamp": 1234567890,
+    "status": "completed",
+    "method": "Brief method name",
+    "modelArchitecture": "Architecture description",
+    "keyTechniques": ["technique1", "technique2"],
+    "bestMetric": 0.95,
+    "metricName": "accuracy",
+    "metricDirection": "max",
+    "trainingDuration": 30,
+    "findings": ["finding1", "finding2"],
+    "problems": ["problem1"],
+    "isPromising": true
+  },
+  "shouldAbandonDirection": false,
+  "newDirectionProposal": null
+}
+\`\`\`
+
+Fields explanation:
+- **status**: "completed" if training succeeded, "failed" if it failed
+- **bestMetric**: The best metric value achieved (e.g., accuracy, F1, or negative loss)
+- **metricName**: Name of the metric (accuracy, f1, loss, etc.)
+- **metricDirection**: "max" if higher is better (accuracy), "min" if lower is better (loss)
+- **trainingDuration**: Training time in minutes
+- **isPromising**: true if results are good enough to continue this direction
+- **shouldAbandonDirection**: true if this direction should be abandoned (3+ failures)
+- **newDirectionProposal**: If abandoning, propose a new direction name
 
 After writing the summary, you MUST invoke the evaluator agent for the final retrospective analysis. Do NOT skip this step - the evaluator will provide deeper methodological analysis and improvement suggestions.`,
   tools: ['Read', 'Write', 'Bash', 'Agent'],

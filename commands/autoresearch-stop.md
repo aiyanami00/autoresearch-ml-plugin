@@ -8,4 +8,4 @@ parameters:
 
 Stops the currently running AutoResearch training process.
 
-<skill name="autoresearch" action="stop" />
+<skill name="autoresearch:autoresearch" action="stop" />

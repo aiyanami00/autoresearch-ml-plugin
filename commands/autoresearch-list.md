@@ -8,4 +8,4 @@ parameters:
 
 Lists all previous AutoResearch experiments with their status.
 
-<skill name="autoresearch" action="list" />
+<skill name="autoresearch:autoresearch" action="list" />

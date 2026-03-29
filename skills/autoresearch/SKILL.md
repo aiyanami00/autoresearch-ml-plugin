@@ -1,6 +1,6 @@
 ---
 name: AutoResearch
-description: This skill runs autonomous multi-agent machine learning research and provides utility commands to check status, stop training, and list experiments. Triggers: /autoresearch, /autoresearch-status, /autoresearch-stop, /autoresearch-list, autoresearch, autonomous ML research, automatic machine learning experiment.
+description: Autonomous multi-agent machine learning research plugin. Automatically explores data, searches for recent research papers, writes PyTorch training code, trains models, and iteratively improves results. Uses specialized subagents: understanding (data exploration), researcher (literature search), evaluator (plan/code review), coder (code generation), trainer (training monitoring), recorder (results analysis). Triggers: /autoresearch, /autoresearch-status, /autoresearch-stop, /autoresearch-list, autoresearch, autonomous ML research, automatic machine learning experiment, run ML experiment, train model automatically.
 skill_type: slash_command
 parameters:
   - name: task

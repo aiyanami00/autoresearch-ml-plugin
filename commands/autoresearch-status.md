@@ -8,4 +8,4 @@ parameters:
 
 Shows the current status of any running training from AutoResearch experiment.
 
-<skill name="autoresearch" action="status" />
+<skill name="autoresearch:autoresearch" action="status" />

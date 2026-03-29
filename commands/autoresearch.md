@@ -41,4 +41,4 @@ Starting AutoResearch with the following parameters:
 
 Invoke the autoresearch skill directly with these parameters to begin the autonomous research process:
 
-<skill name="autoresearch" task="{{task}}" dataset_path="{{dataset_path}}" max_iterations="{{#if max_iterations}}{{max_iterations}}{{else}}3{{/if}}" {{#if experiment_name}}experiment_name="{{experiment_name}}"{{/if}} />
+<skill name="autoresearch:autoresearch" task="{{task}}" dataset_path="{{dataset_path}}" max_iterations="{{#if max_iterations}}{{max_iterations}}{{else}}3{{/if}}" {{#if experiment_name}}experiment_name="{{experiment_name}}"{{/if}} />

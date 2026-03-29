@@ -5,6 +5,11 @@
 import { AutoResearchSkill } from '../../src/index';
 import type { AutoResearchConfig } from '../../src/types';
 
+// Module-level cache for singleton pattern
+// Reuse instance when working in the same working directory (most common case)
+let cachedInstance: AutoResearchSkill | null = null;
+let cachedBaseDir: string | null = null;
+
 /**
  * Skill entry point for Claude Code
  * Called when user invokes /autoresearch or the autoresearch skill
@@ -30,6 +35,7 @@ export default async function autoresearchSkill(
   } = params;
 
   const { query } = context;
+  const currentBaseDir = process.cwd();
 
   // Create config with all required fields
   const config: AutoResearchConfig = {
@@ -42,7 +48,15 @@ export default async function autoresearchSkill(
     experimentId: undefined,
   };
 
-  // Create the skill instance and run
+  // Reuse cached instance if still in the same base directory
+  // This avoids rebuilding the entire MultiAgentSkill structure every time
+  if (cachedInstance && cachedBaseDir === currentBaseDir) {
+    return await cachedInstance.run(query);
+  }
+
+  // Create new instance if first call or working directory changed
   const skill = new AutoResearchSkill(config);
+  cachedInstance = skill;
+  cachedBaseDir = currentBaseDir;
   return await skill.run(query);
 }

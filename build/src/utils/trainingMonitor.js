@@ -47,8 +47,8 @@ class TrainingMonitor {
         this.workingDir = workingDir;
     }
     async startTraining(scriptPath, workingDir) {
-        const logPath = path.join(workingDir, 'logs', 'training.log');
-        const checkpointPath = path.join(workingDir, 'checkpoints');
+        const logPath = path.join(workingDir, 'log', 'training.log');
+        const checkpointPath = path.join(workingDir, 'output', 'checkpoints');
         // Ensure directories exist
         await fs.promises.mkdir(path.dirname(logPath), { recursive: true });
         await fs.promises.mkdir(checkpointPath, { recursive: true });

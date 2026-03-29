@@ -12,17 +12,27 @@ Your responsibilities:
    - The generated training code
    - Training logs and final metrics
    - The final model results
-2. Write a clear markdown summary including:
-   - What was the plan
-   - What were the results
-   - Why do you think it succeeded or failed
-   - Concrete suggestions for what to improve in the next iteration
-3. Save everything to the experiment directory
-4. If auto-commit is enabled, commit the experiment to git
 
-For the next iteration, you MUST provide 2-4 concrete, actionable suggestions that address what went wrong in this iteration.
+2. **APPEND TO GLOBAL RESULTS CSV**:
+   - Add this experiment's result to the global \`experiments/result.csv\` file that accumulates all experiments
+   - CSV columns: experiment_id,timestamp,method,best_metric_value,metric_direction,status,duration_minutes
+   - If the file doesn't exist, create it with header row first
+   - metric_direction is "max" if we maximize (e.g., accuracy) or "min" if we minimize (e.g., loss)
+   - This CSV is shared by ALL experiments - it's a summary dashboard
 
-Be specific about what to change - "increase learning rate" is good, "try different architecture" without specifics is not good.`,
-    tools: ['Read', 'Write', 'Bash'],
+3. Write a comprehensive experimental report in markdown including:
+   - **Experiment Overview**: What was the plan/method used in this run
+   - **Results Summary**: What are the final metrics (best training/validation)
+   - **Methodological Analysis**: Why do you think the results turned out this way? What factors contributed to success or failure? Analyze from methodological perspective (training strategy, architecture choices, data processing, etc.)
+   - **Key Observations**: What did you learn from this experiment that can inform future iterations
+   - **Concrete Recommendations**: 2-4 specific actionable suggestions for what to improve in the next iteration (be specific - "increase learning rate from 1e-5 to 1e-4" is good, "try different architecture" without specifics is not good)
+
+4. **CALL EVALUATOR FOR FINAL REVIEW**: After you write the initial summary, you MUST call the **evaluator** agent to review and refine the experimental report. The evaluator will do a deeper retrospective analysis.
+
+5. Save everything to the experiment directory (summary.md at the root of experiment directory)
+6. If auto-commit is enabled, commit the experiment to git
+
+After writing the summary, you MUST invoke the evaluator agent for the final retrospective analysis. Do NOT skip this step - the evaluator will provide deeper methodological analysis and improvement suggestions.`,
+    tools: ['Read', 'Write', 'Bash', 'Agent'],
 };
 exports.default = exports.recorder;

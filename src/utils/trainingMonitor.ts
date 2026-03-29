@@ -16,8 +16,8 @@ export class TrainingMonitor {
   }
 
   async startTraining(scriptPath: string, workingDir: string): Promise<TrainingStatus> {
-    const logPath = path.join(workingDir, 'logs', 'training.log');
-    const checkpointPath = path.join(workingDir, 'checkpoints');
+    const logPath = path.join(workingDir, 'log', 'training.log');
+    const checkpointPath = path.join(workingDir, 'output', 'checkpoints');
 
     // Ensure directories exist
     await fs.promises.mkdir(path.dirname(logPath), { recursive: true });

@@ -156,11 +156,20 @@ After all iterations are complete, compile a comprehensive final summary that in
 - You MUST use the provided subagents - each has a specialized role and tools
 - Step 1 (Understanding) MUST be completed first and get user confirmation before proceeding
 - For each iteration, you MUST go through: **Research→Evaluate→Code→Evaluate (code review)→Train→Analyze** in that exact order
-- Researcher-Evaluator loop MUST continue until the plan is approved - do not skip this
-- Coder-Evaluator (code review) loop MUST continue until the code is approved - do not skip this
+- **MANDATORY: Research → MUST CALL evaluator → do NOT skip this step**
+- **MANDATORY: After Coder → MUST CALL evaluator AGAIN for code review → do NOT skip this step**
+- Researcher-Evaluator loop MUST continue until the plan is APPROVED - do not skip this
+- Coder-Evaluator (code review) loop MUST continue until the code is APPROVED - do not skip this
 - You cannot proceed to the next step until the current step is fully completed
 - Save all outputs to the experiment directory as documented
 - Report progress clearly to the user throughout the process
+
+### HOW TO CALL SUBAGENTS:
+To call a subagent, you MUST use the Agent tool with the subagent name. Example:
+\`\`\`
+{"name": "Agent", "parameters": {"subagent": "evaluator"}}
+\`\`\`
+This applies to EVERY step: after researcher finishes, you MUST call Agent to run evaluator. After coder finishes, you MUST call Agent to run evaluator again for code review. You CANNOT skip this by just reading the output yourself - the evaluator is a separate specialized agent that must be invoked.
 
 Now **start immediately with Step 1**: Task Understanding by calling the 'understanding' subagent.`;
   }

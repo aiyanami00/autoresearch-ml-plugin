@@ -38,18 +38,19 @@ exports.ExperimentTracker = void 0;
 // Stores all experiments with their plans, code, results
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-const date_fns_1 = require("date-fns");
 const gitHelper_1 = require("./gitHelper");
 const EXPERIMENT_LOG = 'experiment_log.jsonl';
 class ExperimentTracker {
     baseDir;
     gitHelper;
+    initialized = false;
     constructor(baseDir = path.join(process.cwd(), 'experiments')) {
         this.baseDir = baseDir;
         this.gitHelper = new gitHelper_1.GitHelper(process.cwd());
-        this.ensureBaseDir();
     }
-    ensureBaseDir() {
+    ensureInitialized() {
+        if (this.initialized)
+            return;
         if (!fs.existsSync(this.baseDir)) {
             fs.mkdirSync(this.baseDir, { recursive: true });
         }
@@ -58,19 +59,24 @@ class ExperimentTracker {
         if (!fs.existsSync(logPath)) {
             fs.writeFileSync(logPath, '');
         }
+        this.initialized = true;
     }
     createExperiment(task, datasetPath, iteration, name) {
+        // Lazy initialize - only create base directory when actually needed
+        this.ensureInitialized();
+        // Simple incrementing naming: experiment01, experiment02, etc.
+        const experiments = this.listExperiments();
+        const nextNumber = experiments.length + 1;
+        const experimentId = `experiment${nextNumber.toString().padStart(2, '0')}`;
         const timestamp = Date.now();
-        const dateStr = (0, date_fns_1.format)(new Date(timestamp), 'yyyyMMdd-HHmmss');
-        const slug = this.slugify(task);
-        const experimentId = `${iteration}-${dateStr}-${slug}`.slice(0, 100);
         const experimentDir = path.join(this.baseDir, experimentId);
         fs.mkdirSync(experimentDir, { recursive: true });
-        fs.mkdirSync(path.join(experimentDir, 'code'));
-        fs.mkdirSync(path.join(experimentDir, 'logs'));
-        fs.mkdirSync(path.join(experimentDir, 'results'));
-        // Create references directory for cloning official repos
-        fs.mkdirSync(path.join(experimentDir, 'references'));
+        // Create standard subdirectories as requested
+        fs.mkdirSync(path.join(experimentDir, 'src')); // Source code
+        fs.mkdirSync(path.join(experimentDir, 'plan')); // Planning documents
+        fs.mkdirSync(path.join(experimentDir, 'log')); // Training logs
+        fs.mkdirSync(path.join(experimentDir, 'output')); // Output results/models
+        fs.mkdirSync(path.join(experimentDir, 'references')); // Cloned reference code
         const experiment = {
             id: experimentId,
             name: name || experimentId,
@@ -91,8 +97,8 @@ class ExperimentTracker {
     async saveSpecification(experiment, specification) {
         experiment.specification = specification;
         experiment.status = 'planning';
-        // Save as markdown for easy reading
-        const specPath = path.join(experiment.baseDir, 'specification.md');
+        // Save as markdown for easy reading in plan directory
+        const specPath = path.join(experiment.baseDir, 'plan', 'specification.md');
         const markdown = this.specificationToMarkdown(specification);
         await fs.promises.writeFile(specPath, markdown);
         // Save as JSON for machine reading
@@ -122,8 +128,8 @@ class ExperimentTracker {
     }
     async savePlan(experiment, plan) {
         experiment.plan = plan;
-        // Save as pretty markdown for easy reading
-        const planPath = path.join(experiment.baseDir, 'plan.md');
+        // Save as pretty markdown for easy reading in plan directory
+        const planPath = path.join(experiment.baseDir, 'plan', 'plan.md');
         const markdown = this.planToMarkdown(plan);
         await fs.promises.writeFile(planPath, markdown);
         // Save as JSON for machine reading
@@ -137,12 +143,12 @@ class ExperimentTracker {
     async saveResult(experiment, result) {
         experiment.result = result;
         experiment.status = result.error ? 'failed' : 'completed';
-        const resultsPath = path.join(experiment.baseDir, 'results', 'metrics.json');
+        const resultsPath = path.join(experiment.baseDir, 'output', 'metrics.json');
         await fs.promises.writeFile(resultsPath, JSON.stringify(result, null, 2));
         this.saveExperiment(experiment);
     }
     async writeCode(experiment, filename, code) {
-        const codePath = path.join(experiment.baseDir, 'code', filename);
+        const codePath = path.join(experiment.baseDir, 'src', filename);
         await fs.promises.writeFile(codePath, code);
         return codePath;
     }
@@ -209,6 +215,28 @@ class ExperimentTracker {
     async commitExperiment(experiment) {
         const message = `Add experiment ${experiment.id}: ${experiment.task.slice(0, 50)}...`;
         return await this.gitHelper.autoCommitExperiment(experiment.baseDir, message);
+    }
+    /**
+     * Append experiment result to global result.csv file
+     */
+    appendResultToGlobalCSV(experiment, bestMetric, metricDirection, durationMinutes) {
+        this.ensureInitialized();
+        const csvPath = path.join(this.baseDir, 'result.csv');
+        // Create header if file doesn't exist
+        if (!fs.existsSync(csvPath)) {
+            const header = 'experiment_id,timestamp,method,best_metric_value,metric_direction,status,duration_minutes\n';
+            fs.writeFileSync(csvPath, header);
+        }
+        // Get method description from plan if available
+        let method = 'unknown';
+        if (experiment.plan && experiment.plan.modelArchitecture) {
+            // Extract first line or short description
+            method = experiment.plan.modelArchitecture.split('\n')[0].slice(0, 100).replace(/,/g, ';');
+        }
+        const timestampStr = new Date(experiment.timestamp).toISOString();
+        const status = experiment.status;
+        const line = `${experiment.id},${timestampStr},"${method}",${bestMetric},${metricDirection},${status},${durationMinutes.toFixed(1)}\n`;
+        fs.appendFileSync(csvPath, line);
     }
     getExperimentBaseDir() {
         return this.baseDir;

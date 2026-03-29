@@ -100,18 +100,31 @@ npm run build
 
 ```
 experiments/
-├── experiment_log.jsonl
-└── 1-20250328-123456-task-name/
-    ├── specification.md    # 规范（数据+GPU+目标）
-    ├── plan.md             # 批准的方案
-    ├── code/
+├── experiment_log.jsonl    # 全局实验索引
+├── result.csv              # 全局结果汇总表
+├── specification.md       # ← 整体实验规范（数据+GPU+目标）共享给所有迭代
+└── experiment01/           # 迭代 1（顺序编号 01, 02, 03...)
+    ├── plan.md             # 本轮迭代批准的方案
+    ├── config.json         # 本轮实验配置
+    ├── plan/
+    │   └── plan.md
+    ├── src/                # 训练代码
     │   ├── train.py
     │   └── model.py
+    ├── log/
+    │   └── training.log
+    ├── output/
+    │   ├── metrics.json
+    │   └── learning_curves.csv
     ├── references/         # 克隆的参考代码
-    ├── logs/training.log
-    ├── results/metrics.json
-    └── summary.md          # 分析和建议
+    ├── checkpoints/        # git-忽略
+    └── summary.md          # 本轮分析和建议
 ```
+
+**结构说明**：
+- `specification.md` 包含整体实验信息（数据描述、GPU 信息、训练目标），这些在迭代之间不会改变，因此只在根目录保存一份
+- 每次迭代会创建一个独立的 `experimentXX` 目录（顺序编号：`experiment01`, `experiment02`, ...）
+- 每次迭代独立保存自己的方案、代码、日志和结果
 
 ## 初始化实验目录
 

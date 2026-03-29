@@ -77,8 +77,8 @@ export class ExperimentTracker {
     experiment.specification = specification;
     experiment.status = 'planning';
 
-    // Save as markdown for easy reading in plan directory
-    const specPath = path.join(experiment.baseDir, 'plan', 'specification.md');
+    // Save as markdown for easy reading - specification.md goes to experiments root directory
+    const specPath = path.join(this.baseDir, 'specification.md');
     const markdown = this.specificationToMarkdown(specification);
     await fs.promises.writeFile(specPath, markdown);
 

@@ -72,7 +72,7 @@ This plugin uses the `MultiAgentSkill` framework where:
    ↓
    researcher → evaluator (loop until approved)
    ↓
-   coder → codereviewer (loop until approved) ✨ new code review step
+   coder → evaluator (loop until approved) ✨ code review by unified evaluator
    ↓
    trainer (train and monitor until completion/failure)
    ↓
@@ -100,22 +100,29 @@ Experiments are stored in the **user's current working directory** (where `/auto
 ```
 experiments/
 ├── experiment_log.jsonl               # Global experiment index
-└── {iteration}-{timestamp}-{name}/
-    ├── specification.md               # Formal specification with discovered data patterns and GPU info
-    ├── plan.md                         # Approved plan with paper references
+├── result.csv                         # Global results summary
+├── specification.md                   # Overall experiment specification (data, GPU, objective) ← shared by all iterations
+└── experiment01/                      # Iteration 1 (sequential numbering: 01, 02, 03...)
     ├── config.json                     # Full experiment configuration
-    ├── code/
+    ├── plan/
+    │   └── plan.md                     # Approved plan for this iteration
+    ├── src/                            # Training code
     │   ├── train.py
     │   └── model.py
-    ├── references/                     # Cloned reference code from GitHub
-    ├── logs/
+    ├── log/                            # Training logs
     │   └── training.log
-    ├── results/
+    ├── output/                         # Output results, metrics, checkpoints
     │   ├── metrics.json
     │   └── learning_curves.csv
+    ├── references/                     # Cloned reference code from GitHub
     ├── checkpoints/                    # git-ignored
-    └── summary.md                      # Final analysis and suggestions
+    └── summary.md                      # Final analysis and suggestions for this iteration
 ```
+
+**Structure notes**:
+- `specification.md` contains overall experiment information (data description, GPU info, training objective) that doesn't change between iterations - so it's stored once in the root directory
+- Each iteration gets its own `experimentXX` directory with sequential numbering (`experiment01`, `experiment02`, ...)
+- Each iteration stores its own plan, code, logs, and results independently
 
 ### Key Dependencies
 
@@ -148,7 +155,7 @@ Example:
 
 - **Automatic GPU detection**: Understanding agent runs `nvidia-smi` to get GPU model and memory, which informs model design
 - **Mandatory search-first**: Researcher must search web for recent papers before proposing solution, encourages brainstorming multiple approaches
-- **Double review**: Plan review by evaluator + code review by codereviewer before training, catches issues early
+- **Double review**: Plan review by evaluator + code review by evaluator before training, catches issues early
 - **Long-running training support**: Training runs in detached background process, supports hours/days of training
 - **User confirmation**: Understanding agent gets user review/modification approval before research starts
 - **Extract coding conventions**: Learns your coding style/data processing from existing code, generates new code that matches

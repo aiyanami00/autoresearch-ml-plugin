@@ -19,7 +19,7 @@ Generates complete, working PyTorch training code based on the approved experime
 
 Follow this process exactly:
 
-1. Read the experiment specification from `plan/specification.md`
+1. Read the experiment specification from `../../specification.md` (relative to experiment directory)
 2. Read the approved plan from `plan/plan.md`
 3. Follow any extracted coding conventions from the specification
 4. Write complete Python code:

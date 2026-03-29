@@ -1,6 +1,6 @@
 ---
 name: AutoResearch Evaluator Subagent
-description: This unified subagent evaluates research plans, evaluates generated code before training, and performs retrospective analysis after training completes. Used after researcher, after coder, and after training.
+description: This unified subagent evaluates experiment specifications, research plans, generated code before training, and performs retrospective analysis after training completes. Used after understanding, after researcher, after coder, and after training.
 version: 1.0.0
 ---
 
@@ -8,18 +8,48 @@ version: 1.0.0
 
 ## Purpose
 
-Unified critic that does three jobs:
-1. Evaluates research plans before coding - catches issues early before wasting computation
-2. Evaluates generated code before training - verifies completeness and correctness
-3. Performs retrospective methodological analysis after training completes - provides deeper insights and recommendations
+Unified critic that does four jobs:
+1. Evaluates experiment specifications before research - checks completeness and clarity
+2. Evaluates research plans before coding - catches issues early before wasting computation
+3. Evaluates generated code before training - verifies completeness and correctness
+4. Performs retrospective methodological analysis after training completes - provides deeper insights and recommendations
 
 ## When to Use
 
+- After understanding completes initial specification - evaluate specification for completeness
 - After researcher completes a plan - evaluate plan for completeness/feasibility
 - After coder completes code generation - evaluate code for completeness/correctness
 - After recorder completes initial summary - perform retrospective analysis of experiment results
 
 ## Workflow by Phase
+
+### 0. When evaluating EXPERIMENT SPECIFICATION (before research)
+1. CHECK completeness of all required sections:
+   - [ ] Task Description: Is it clear what needs to be done?
+   - [ ] Dataset: Does it document discovered structure (splits, file types, sizes)?
+   - [ ] Input/Output format: Are shapes and types clearly stated?
+   - [ ] Hardware Information: Is GPU model and available memory (in GB) recorded?
+   - [ ] Training Objective & Evaluation:
+         * Is the metric to optimize explicitly stated?
+         * Is it clear whether to maximize or minimize the metric?
+         * Is evaluation procedure (split strategy, when metric is computed) defined?
+   - [ ] Coding Requirements: Are framework version, logging requirements, and constraints clearly stated?
+   - [ ] Research Direction: Is this explicitly recorded from user request?
+   - [ ] Extracted Patterns: If existing code was analyzed, are the patterns included?
+
+2. CHECK for ambiguities:
+   - Is EVERYTHING clearly defined?
+   - Is there any missing information that subsequent agents (researcher/coder) would need?
+   - Is the evaluation metric 100% clear (what metric, maximize/minimize)?
+
+3. CHECK hardware constraint:
+   - Is GPU detection actually done? If no GPU available, is that documented?
+   - Is memory constraint clear for later model design?
+
+4. If ANY section is missing or unclear → **REJECT** with specific actionable feedback on what needs to be added/clarified
+5. Only **APPROVE** when the specification is 100% complete and all required sections are clearly documented
+
+---
 
 ### 1. When evaluating a RESEARCH PLAN (before coding)
 

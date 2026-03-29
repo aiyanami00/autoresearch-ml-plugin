@@ -8,6 +8,6 @@
   },
   "license": "MIT",
   "keywords": ["machine-learning", "research", "autonomous", "training", "data-science"],
-  "skills": "build/skills/",
-  "commands": "commands/"
+  "skills": ["./skills/"],
+  "commands": ["./commands/"]
 }

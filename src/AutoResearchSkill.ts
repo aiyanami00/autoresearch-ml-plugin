@@ -108,14 +108,22 @@ export class AutoResearchSkill {
 
 Follow this process step-by-step, using the specialized subagents provided:
 
-### Step 1: Task Understanding (using the 'understanding' subagent)
+### Step 1: Task Understanding (using the 'understanding' subagent with evaluator review)
 1. Call the **understanding** subagent to:
    - Automatically explore the dataset directory structure
    - Analyze any existing code to extract coding conventions and patterns
    - Clarify any ambiguous points with the user (especially what evaluation metric to optimize)
-   - Write the formal specification to specification.md in the experiment directory
-   - Get user review and confirmation on the specification before proceeding
-   - The user may request modifications - incorporate them before continuing
+   - Write the formal specification to specification.md in the experiments root directory
+2. Call **evaluator** subagent to review the specification for completeness
+3. If the specification is REJECTED:
+   - Incorporate the evaluator's feedback back to understanding
+   - understanding revises the specification
+   - call evaluator again to re-review
+4. Repeat this loop **until the specification is APPROVED** by evaluator
+5. After evaluator approval, present the complete specification to the user and **get user review and confirmation**:
+   - The user may request modifications - incorporate them
+   - After any user modifications, you still need to call evaluator to re-validate the modified specification
+   - Only proceed when **both**: evaluator approved AND user confirmed
 
 ### Step 2: Iterative Research and Training (repeat for ${maxIterations} iterations)
 For each iteration from 1 to ${maxIterations}:
@@ -211,6 +219,176 @@ Now **start immediately with Step 1**: Task Understanding by calling the 'unders
           }
         }
         result += `\nAll experiments stored in: ${this.tracker.getExperimentBaseDir()}`;
+        return result;
+      }
+
+      case 'summary': {
+        const experiments = this.listExperiments();
+        let result = '# AutoResearch Experiment Summary\n\n';
+
+        if (experiments.length === 0) {
+          result += 'No experiments found in the experiments directory.';
+          return result;
+        }
+
+        // Read overall specification if it exists
+        const specPath = require('path').join(this.tracker.getExperimentBaseDir(), 'specification.md');
+        const fs = require('fs');
+        if (fs.existsSync(specPath)) {
+          const specContent = fs.readFileSync(specPath, 'utf-8');
+          // Extract task from spec for header
+          const taskMatch = specContent.match(/## Task Description\n([\s\S]*?)(?=\n##|$)/);
+          if (taskMatch) {
+            result += `## Overall Task\n${taskMatch[1].trim()}\n\n`;
+          }
+        }
+
+        // Process each completed experiment that has a summary
+        const completedExperiments: {
+          id: string;
+          name: string;
+          iteration: number;
+          summaryPath: string;
+          summaryContent: string;
+          bestMetric?: number;
+          findings: string[];
+          suggestions: string[];
+        }[] = [];
+
+        for (const expInfo of experiments) {
+          const exp = this.tracker.getExperiment(expInfo.id);
+          if (!exp) continue;
+
+          const summaryPath = require('path').join(exp.baseDir, 'summary.md');
+          if (!fs.existsSync(summaryPath)) continue;
+
+          const summaryContent = fs.readFileSync(summaryPath, 'utf-8');
+
+          // Extract best metric value if mentioned
+          const bestMetricMatch = summaryContent.match(/best.*metric[:]?[^\d]*([\d.]+)/i);
+          const accuracyMatch = summaryContent.match(/accuracy[:]?[^\d]*([\d.]+)/i);
+          const lossMatch = summaryContent.match(/loss[:]?[^\d]*([\d.]+)/i);
+          let bestMetric: number | undefined;
+          if (bestMetricMatch) bestMetric = parseFloat(bestMetricMatch[1]);
+          else if (accuracyMatch) bestMetric = parseFloat(accuracyMatch[1]);
+          else if (lossMatch) bestMetric = parseFloat(lossMatch[1]);
+
+          // Extract findings (look for sections like "Key Findings", "Findings", "Observations")
+          const findings: string[] = [];
+          const findingsMatch = summaryContent.match(/(?:Key Findings|Findings|Observations):?\n([\s\S]*?)(?=\n##|\n###|$)/i);
+          if (findingsMatch) {
+            const lines = findingsMatch[1].split('\n').filter((l: string) => l.trim().startsWith('- ') || l.trim().length > 0);
+            lines.forEach((l: string) => {
+              const trimmed = l.trim();
+              if (trimmed.startsWith('- ')) findings.push(trimmed.substring(2));
+              else if (trimmed.length > 0) findings.push(trimmed);
+            });
+          }
+
+          // Extract suggestions for future improvements
+          const suggestions: string[] = [];
+          const suggestionsMatch = summaryContent.match(/(?:Suggestions|Improvements|Future Directions|Next Steps):?\n([\s\S]*?)(?=\n##|\n###|$)/i);
+          if (suggestionsMatch) {
+            const lines = suggestionsMatch[1].split('\n').filter((l: string) => l.trim().startsWith('- ') || l.trim().length > 0);
+            lines.forEach((l: string) => {
+              const trimmed = l.trim();
+              if (trimmed.startsWith('- ')) suggestions.push(trimmed.substring(2));
+              else if (trimmed.length > 0) suggestions.push(trimmed);
+            });
+          }
+
+          completedExperiments.push({
+            id: expInfo.id,
+            name: expInfo.name,
+            iteration: expInfo.iteration,
+            summaryPath,
+            summaryContent,
+            bestMetric,
+            findings,
+            suggestions,
+          });
+        }
+
+        if (completedExperiments.length === 0) {
+          result += 'No completed experiments with summary found.\n\n';
+          result += `Total experiments: ${experiments.length} (${experiments.filter(e => e.status !== 'completed').length} in progress or failed)\n`;
+          result += `\nExperiments directory: ${this.tracker.getExperimentBaseDir()}`;
+          return result;
+        }
+
+        // Experiment table
+        result += `## Completed Experiments Summary\n\n`;
+        result += `| Iteration | ID | Name | Best Metric |\n`;
+        result += `|-----------|----|------|-------------|\n`;
+        for (const exp of completedExperiments) {
+          const metricStr = exp.bestMetric !== undefined ? exp.bestMetric.toFixed(4) : 'N/A';
+          result += `| ${exp.iteration} | ${exp.id} | ${exp.name} | ${metricStr} |\n`;
+        }
+        result += '\n';
+
+        // Find best experiment (highest metric - assuming accuracy-like where higher is better)
+        const experimentsWithMetrics = completedExperiments.filter(e => e.bestMetric !== undefined);
+        if (experimentsWithMetrics.length > 0) {
+          const bestExperiment = experimentsWithMetrics.reduce((best, current) =>
+            current.bestMetric! > best.bestMetric! ? current : best
+          );
+          result += `## 🏆 Best Result\n\n`;
+          result += `- **Experiment**: ${bestExperiment.id} (${bestExperiment.name})\n`;
+          result += `- **Iteration**: ${bestExperiment.iteration}\n`;
+          result += `- **Best Metric**: ${bestExperiment.bestMetric!.toFixed(4)}\n\n`;
+        }
+
+        // Aggregate all key findings
+        const allFindings: string[] = [];
+        completedExperiments.forEach(exp => {
+          allFindings.push(...exp.findings);
+        });
+
+        if (allFindings.length > 0) {
+          result += `## 🔍 Key Findings Across Experiments\n\n`;
+          allFindings.forEach((finding, idx) => {
+            result += `${idx + 1}. ${finding}\n`;
+          });
+          result += '\n';
+        }
+
+        // Aggregate all suggestions for future directions
+        const allSuggestions: string[] = [];
+        completedExperiments.forEach(exp => {
+          allSuggestions.push(...exp.suggestions);
+        });
+
+        if (allSuggestions.length > 0) {
+          result += `## 🚀 Suggested Future Directions\n\n`;
+          allSuggestions.forEach((suggestion, idx) => {
+            result += `${idx + 1}. ${suggestion}\n`;
+          });
+          result += '\n';
+        }
+
+        // Per-experiment brief summaries
+        result += `## 📋 Individual Experiment Details\n\n`;
+        for (const exp of completedExperiments) {
+          result += `### ${exp.id} (${exp.name})\n\n`;
+          // Extract first paragraph or key section from summary
+          const lines = exp.summaryContent.split('\n');
+          const firstParagraph = lines.slice(0, 10).join('\n');
+          // Try to get just the result/analysis section
+          const resultMatch = exp.summaryContent.match(/(?:Result|Analysis|Summary):?\n([\s\S]*?)(?=\n##|$)/i);
+          if (resultMatch && resultMatch[1].trim().length > 0) {
+            result += resultMatch[1].trim().slice(0, 300);
+            if (resultMatch[1].length > 300) result += '...';
+          } else {
+            result += firstParagraph.slice(0, 300);
+            if (firstParagraph.length > 300) result += '...';
+          }
+          result += `\n\nFull summary: ${exp.summaryPath}\n\n`;
+        }
+
+        result += `---\n`;
+        result += `Total completed experiments: ${completedExperiments.length}/${experiments.length}\n`;
+        result += `Experiments directory: ${this.tracker.getExperimentBaseDir()}`;
+
         return result;
       }
 

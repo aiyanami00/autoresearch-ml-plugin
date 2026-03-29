@@ -10,9 +10,9 @@ parameters:
     description: Local filesystem path to the dataset (required for starting new experiment)
     required: false
   - name: action
-    description: Action to perform: start (start new experiment), status (get current training status), stop (stop current training), list (list all experiments)
+    description: Action to perform: start (start new experiment), status (get current training status), stop (stop current training), list (list all experiments), summary (summarize all completed experiments)
     type: string
-    enum: ["start", "status", "stop", "list"]
+    enum: ["start", "status", "stop", "list", "summary"]
     default: "start"
     required: false
   - name: max_iterations

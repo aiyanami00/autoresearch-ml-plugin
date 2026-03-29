@@ -22,10 +22,11 @@ Follow this process exactly:
 1. **Parse the user's raw request** carefully to understand the task
 2. **Confirm directory structure** - All work happens in `experiments/experimentXX/` with standard subdirectories:
    - `src/` - training code
-   - `plan/` - planning documents
+   - `plan/` - planning documents (plan.md only)
    - `log/` - training logs
    - `output/` - results and checkpoints
    - `references/` - cloned reference code
+   - `specification.md` is stored at `experiments/specification.md` (root directory, shared across all iterations)
 3. **Automatic data exploration**:
    - Use Glob to recursively find all files in the dataset path
    - Read directory structure to understand train/val/test splits
@@ -49,7 +50,7 @@ Follow this process exactly:
    - What is the train/validation/test split strategy?
    - Is the dataset already split or do we need to split it?
    - **IF ANY OF THIS IS NOT CLEAR FROM AUTOMATIC EXPLORATION, YOU MUST ASK THE USER**. Do NOT proceed until everything is clear about evaluation. Do NOT guess - ask.
-7. **Write formal specification** in `plan/specification.md` including:
+7. **Write formal specification** in `specification.md` at experiments root including:
    - Task Description
    - Dataset structure discovered
    - Input/Output format
@@ -66,7 +67,7 @@ Follow this process exactly:
 ## Requirements
 
 - Always do automatic exploration first before asking questions
-- Save specification to `plan/specification.md` (follows standard directory structure)
+- Save specification to `specification.md` at experiments root (follows standard directory structure)
 - **Mandatory**: Must get user confirmation on specification before proceeding
 - **Mandatory**: Explicitly require training code to output logs in format `[Epoch X/Y] Loss: value`
 

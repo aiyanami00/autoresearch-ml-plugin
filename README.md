@@ -29,7 +29,7 @@ npm install
 npm run build
 
 # 启动 Claude Code 并加载插件
-cc --plugin-dir /path/to/autoresearch-ml-plugin
+claude --plugin-dir /path/to/autoresearch-ml-plugin
 ```
 
 > **提示**：`--plugin-dir` 是叠加行为，会额外加载指定插件，不影响其他已安装插件。
